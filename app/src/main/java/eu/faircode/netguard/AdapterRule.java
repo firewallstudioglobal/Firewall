@@ -343,8 +343,10 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
                     .load(uri)
                     //.diskCacheStrategy(DiskCacheStrategy.NONE)
                     //.skipMemoryCache(true)
+                    //.placeholder(R.drawable.ic_security_1)
                     .override(iconSize, iconSize)
                     .into(holder.ivIcon);
+
         }
 
         // Show application label
