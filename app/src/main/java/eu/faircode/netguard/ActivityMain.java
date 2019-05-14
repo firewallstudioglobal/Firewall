@@ -34,6 +34,7 @@ import android.net.VpnService;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.SpannableString;
@@ -97,6 +98,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
     private AlertDialog dialogDoze = null;
     private AlertDialog dialogLegend = null;
     private AlertDialog dialogAbout = null;
+    private RecyclerView rvApplication = null;
 
     private IAB iab = null;
 
@@ -203,79 +205,79 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         });
 
         // On/off switch
-        swEnabled.setChecked(enabled);
-        swEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i(TAG, "Switch=" + isChecked);
-                prefs.edit().putBoolean("enabled", isChecked).apply();
-
-                if (isChecked) {
-                    String alwaysOn = Settings.Secure.getString(getContentResolver(), "always_on_vpn_app");
-                    Log.i(TAG, "Always-on=" + alwaysOn);
-                    if (!TextUtils.isEmpty(alwaysOn))
-                        if (getPackageName().equals(alwaysOn)) {
-                            if (prefs.getBoolean("filter", false)) {
-                                int lockdown = Settings.Secure.getInt(getContentResolver(), "always_on_vpn_lockdown", 0);
-                                Log.i(TAG, "Lockdown=" + lockdown);
-                                if (lockdown != 0) {
-                                    swEnabled.setChecked(false);
-                                    Toast.makeText(ActivityMain.this, R.string.msg_always_on_lockdown, Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                            }
-                        } else {
-                            swEnabled.setChecked(false);
-                            Toast.makeText(ActivityMain.this, R.string.msg_always_on, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
-                    try {
-                        final Intent prepare = VpnService.prepare(ActivityMain.this);
-                        if (prepare == null) {
-                            Log.i(TAG, "Prepare done");
-                            onActivityResult(REQUEST_VPN, RESULT_OK, null);
-                        } else {
-                            // Show dialog
-                            LayoutInflater inflater = LayoutInflater.from(ActivityMain.this);
-                            View view = inflater.inflate(R.layout.vpn, null, false);
-                            dialogVpn = new AlertDialog.Builder(ActivityMain.this)
-                                    .setView(view)
-                                    .setCancelable(false)
-                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            if (running) {
-                                                Log.i(TAG, "Start intent=" + prepare);
-                                                try {
-                                                    // com.android.vpndialogs.ConfirmDialog required
-                                                    startActivityForResult(prepare, REQUEST_VPN);
-                                                } catch (Throwable ex) {
-                                                    Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
-                                                    onActivityResult(REQUEST_VPN, RESULT_CANCELED, null);
-                                                    prefs.edit().putBoolean("enabled", false).apply();
-                                                }
-                                            }
-                                        }
-                                    })
-                                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                        @Override
-                                        public void onDismiss(DialogInterface dialogInterface) {
-                                            dialogVpn = null;
-                                        }
-                                    })
-                                    .create();
-                            dialogVpn.show();
-                        }
-                    } catch (Throwable ex) {
-                        // Prepare failed
-                        Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
-                        prefs.edit().putBoolean("enabled", false).apply();
-                    }
-
-                } else
-                    ServiceSinkhole.stop("switch off", ActivityMain.this, false);
-            }
-        });
+//        swEnabled.setChecked(enabled);
+//        swEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                Log.i(TAG, "Switch=" + isChecked);
+//                prefs.edit().putBoolean("enabled", isChecked).apply();
+//
+//                if (isChecked) {
+//                    String alwaysOn = Settings.Secure.getString(getContentResolver(), "always_on_vpn_app");
+//                    Log.i(TAG, "Always-on=" + alwaysOn);
+//                    if (!TextUtils.isEmpty(alwaysOn))
+//                        if (getPackageName().equals(alwaysOn)) {
+//                            if (prefs.getBoolean("filter", false)) {
+//                                int lockdown = Settings.Secure.getInt(getContentResolver(), "always_on_vpn_lockdown", 0);
+//                                Log.i(TAG, "Lockdown=" + lockdown);
+//                                if (lockdown != 0) {
+//                                    swEnabled.setChecked(false);
+//                                    Toast.makeText(ActivityMain.this, R.string.msg_always_on_lockdown, Toast.LENGTH_LONG).show();
+//                                    return;
+//                                }
+//                            }
+//                        } else {
+//                            swEnabled.setChecked(false);
+//                            Toast.makeText(ActivityMain.this, R.string.msg_always_on, Toast.LENGTH_LONG).show();
+//                            return;
+//                        }
+//
+//                    try {
+//                        final Intent prepare = VpnService.prepare(ActivityMain.this);
+//                        if (prepare == null) {
+//                            Log.i(TAG, "Prepare done");
+//                            onActivityResult(REQUEST_VPN, RESULT_OK, null);
+//                        } else {
+//                            // Show dialog
+//                            LayoutInflater inflater = LayoutInflater.from(ActivityMain.this);
+//                            View view = inflater.inflate(R.layout.vpn, null, false);
+//                            dialogVpn = new AlertDialog.Builder(ActivityMain.this)
+//                                    .setView(view)
+//                                    .setCancelable(false)
+//                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(DialogInterface dialog, int which) {
+//                                            if (running) {
+//                                                Log.i(TAG, "Start intent=" + prepare);
+//                                                try {
+//                                                    // com.android.vpndialogs.ConfirmDialog required
+//                                                    startActivityForResult(prepare, REQUEST_VPN);
+//                                                } catch (Throwable ex) {
+//                                                    Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
+//                                                    onActivityResult(REQUEST_VPN, RESULT_CANCELED, null);
+//                                                    prefs.edit().putBoolean("enabled", false).apply();
+//                                                }
+//                                            }
+//                                        }
+//                                    })
+//                                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+//                                        @Override
+//                                        public void onDismiss(DialogInterface dialogInterface) {
+//                                            dialogVpn = null;
+//                                        }
+//                                    })
+//                                    .create();
+//                            dialogVpn.show();
+//                        }
+//                    } catch (Throwable ex) {
+//                        // Prepare failed
+//                        Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
+//                        prefs.edit().putBoolean("enabled", false).apply();
+//                    }
+//
+//                } else
+//                    ServiceSinkhole.stop("switch off", ActivityMain.this, false);
+//            }
+//        });
 
         swEnabled1.setChecked(enabled);
         swEnabled1.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
@@ -380,13 +382,15 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         tvDisabled.setVisibility(enabled ? View.GONE : View.VISIBLE);
 
         // Application list
-        RecyclerView rvApplication = findViewById(R.id.rvApplication);
+        rvApplication = findViewById(R.id.rvApplication);
         rvApplication.setHasFixedSize(false);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setAutoMeasureEnabled(true);
         rvApplication.setLayoutManager(llm);
-        adapter = new AdapterRule(this, findViewById(R.id.vwPopupAnchor));
-        rvApplication.setAdapter(adapter);
+//        adapter = new AdapterRule(this, findViewById(R.id.vwPopupAnchor));
+//        rvApplication.setAdapter(adapter);
+
+        renderData();
 
         // Swipe to refresh
         TypedValue tv = new TypedValue();
@@ -533,6 +537,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         SpannableString content = new SpannableString(getString(R.string.app_support));
         content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
         tvSupport.setText(content);
+        llSupport.setVisibility(View.GONE);
 
         llSupport.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -579,13 +584,43 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
             adapter.notifyDataSetChanged();
         }
 
-        PackageManager pm = getPackageManager();
-        LinearLayout llSupport = findViewById(R.id.llSupport);
-        llSupport.setVisibility(
-                IAB.isPurchasedAny(this) || getIntentPro(this).resolveActivity(pm) == null
-                        ? View.GONE : View.VISIBLE);
+//        PackageManager pm = getPackageManager();
+//        LinearLayout llSupport = findViewById(R.id.llSupport);
+//        llSupport.setVisibility(
+//                IAB.isPurchasedAny(this) || getIntentPro(this).resolveActivity(pm) == null
+//                        ? View.GONE : View.VISIBLE);
 
         super.onResume();
+    }
+
+    private void renderData(){
+
+        new AsyncTask<Object, Object, Void>() {
+
+            @Override
+            protected void onPreExecute() {
+
+            }
+
+            @Override
+            protected Void doInBackground(Object... arg) {
+                adapter = new AdapterRule(ActivityMain.this, findViewById(R.id.vwPopupAnchor));
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                rvApplication.setAdapter(adapter);
+
+//                ActivityMain.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        rvApplication.setAdapter(adapter);
+//                    }
+//                });
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
