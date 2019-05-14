@@ -1026,6 +1026,11 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
     }
 
     private void checkDoze() {
+
+        if(true){
+            return;
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             final Intent doze = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
             if (Util.batteryOptimizing(this) && getPackageManager().resolveActivity(doze, 0) != null) {

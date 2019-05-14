@@ -586,7 +586,7 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
             }
         });
 
-        holder.llFilter.setVisibility(Util.canFilter(context) ? View.VISIBLE : View.GONE);
+//        holder.llFilter.setVisibility(Util.canFilter(context) ? View.VISIBLE : View.GONE);
 
         // Live
         holder.ivLive.setOnClickListener(new View.OnClickListener() {
@@ -605,6 +605,10 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
         final boolean log_app = prefs.getBoolean("log_app", false);
         final boolean filter = prefs.getBoolean("filter", false);
         final boolean notify_access = prefs.getBoolean("notify_access", false);
+
+        holder.tvLogging.setVisibility(View.GONE);
+        holder.btnLogging.setVisibility(View.GONE);
+
         holder.tvLogging.setText(log_app && filter ? R.string.title_logging_enabled : R.string.title_logging_disabled);
         holder.btnLogging.setOnClickListener(new View.OnClickListener() {
             @Override

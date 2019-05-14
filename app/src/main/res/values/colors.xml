@@ -4,9 +4,9 @@
 
     <color name="colorTealPrimary">#009688</color>
     <color name="colorTealPrimaryDark">#00796B</color>
-    <color name="colorTealAccent">#FF5722</color>
+    <color name="colorTealAccent">#BF360C</color>
     <color name="colorTealOn">#009688</color>
-    <color name="colorTealOff">#FF5722</color>
+    <color name="colorTealOff">#BF360C</color>
 
     <color name="colorBluePrimary">#2196F3</color>
     <color name="colorBluePrimaryDark">#1976D2</color>
