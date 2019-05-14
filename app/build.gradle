@@ -90,4 +90,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
 
     implementation 'com.github.zcweng:switch-button:0.0.3@aar'
+    implementation ('com.guardanis:applock:3.0.1')
+
 }

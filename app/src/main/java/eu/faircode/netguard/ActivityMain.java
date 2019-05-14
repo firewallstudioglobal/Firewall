@@ -70,9 +70,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.guardanis.applock.AppLock;
+import com.guardanis.applock.activities.LockCreationActivity;
+import com.guardanis.applock.activities.UnlockActivity;
+import com.guardanis.applock.dialogs.LockCreationDialogBuilder;
+import com.guardanis.applock.dialogs.UnlockDialogBuilder;
 import com.suke.widget.SwitchButton;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ActivityMain extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "NetGuard.Main";
@@ -99,6 +105,11 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
     private static final int REQUEST_LOGCAT = 3;
     public static final int REQUEST_ROAMING = 4;
 
+    public static final int REQUEST_CODE_CREATE_LOCK = 1001;
+    public static final int REQUEST_CODE_ULOCK = 1002;
+
+    private boolean IS_UPDATING_PASSWORD = false;
+
     private static final int MIN_SDK = Build.VERSION_CODES.LOLLIPOP_MR1;
 
     public static final String ACTION_RULES_CHANGED = "eu.faircode.netguard.ACTION_RULES_CHANGED";
@@ -116,6 +127,8 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "Create version=" + Util.getSelfVersionName(this) + "/" + Util.getSelfVersionCode(this));
         Util.logExtras(getIntent());
+
+        unlock();
 
         // Check minimum Android version
         if (Build.VERSION.SDK_INT < MIN_SDK) {
@@ -484,34 +497,34 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         updateApplicationList(getIntent().getStringExtra(EXTRA_SEARCH));
 
         // Update IAB SKUs
-        try {
-            iab = new IAB(new IAB.Delegate() {
-                @Override
-                public void onReady(IAB iab) {
-                    try {
-                        iab.updatePurchases();
-
-                        if (!IAB.isPurchased(ActivityPro.SKU_LOG, ActivityMain.this))
-                            prefs.edit().putBoolean("log", false).apply();
-                        if (!IAB.isPurchased(ActivityPro.SKU_THEME, ActivityMain.this)) {
-                            if (!"teal".equals(prefs.getString("theme", "teal")))
-                                prefs.edit().putString("theme", "teal").apply();
-                        }
-                        if (!IAB.isPurchased(ActivityPro.SKU_NOTIFY, ActivityMain.this))
-                            prefs.edit().putBoolean("install", false).apply();
-                        if (!IAB.isPurchased(ActivityPro.SKU_SPEED, ActivityMain.this))
-                            prefs.edit().putBoolean("show_stats", false).apply();
-                    } catch (Throwable ex) {
-                        Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
-                    } finally {
-                        iab.unbind();
-                    }
-                }
-            }, this);
-            iab.bind();
-        } catch (Throwable ex) {
-            Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
-        }
+//        try {
+//            iab = new IAB(new IAB.Delegate() {
+//                @Override
+//                public void onReady(IAB iab) {
+//                    try {
+//                        iab.updatePurchases();
+//
+//                        if (!IAB.isPurchased(ActivityPro.SKU_LOG, ActivityMain.this))
+//                            prefs.edit().putBoolean("log", false).apply();
+//                        if (!IAB.isPurchased(ActivityPro.SKU_THEME, ActivityMain.this)) {
+//                            if (!"teal".equals(prefs.getString("theme", "teal")))
+//                                prefs.edit().putString("theme", "teal").apply();
+//                        }
+//                        if (!IAB.isPurchased(ActivityPro.SKU_NOTIFY, ActivityMain.this))
+//                            prefs.edit().putBoolean("install", false).apply();
+//                        if (!IAB.isPurchased(ActivityPro.SKU_SPEED, ActivityMain.this))
+//                            prefs.edit().putBoolean("show_stats", false).apply();
+//                    } catch (Throwable ex) {
+//                        Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
+//                    } finally {
+//                        iab.unbind();
+//                    }
+//                }
+//            }, this);
+//            iab.bind();
+//        } catch (Throwable ex) {
+//            Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
+//        }
 
         // Support
         LinearLayout llSupport = findViewById(R.id.llSupport);
@@ -562,8 +575,9 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         }
 
         DatabaseHelper.getInstance(this).addAccessChangedListener(accessChangedListener);
-        if (adapter != null)
+        if (adapter != null){
             adapter.notifyDataSetChanged();
+        }
 
         PackageManager pm = getPackageManager();
         LinearLayout llSupport = findViewById(R.id.llSupport);
@@ -672,6 +686,16 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                     target = Uri.parse(target + "/logcat.txt");
                 Log.i(TAG, "Export URI=" + target);
                 Util.sendLogcat(target, this);
+            }
+
+        } else if (requestCode == REQUEST_CODE_ULOCK) {
+            // Send logcat by e-mail
+            if (resultCode == RESULT_OK) {
+                Log.d(TAG, "REQUEST_CODE_ULOCK OK : IS_UPDATING_PASSWORD " + IS_UPDATING_PASSWORD);
+
+                if(IS_UPDATING_PASSWORD){
+                    createPassword();
+                }
             }
 
         } else {
@@ -975,6 +999,10 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                 menu_legend();
                 return true;
 
+            case R.id.menu_password:
+                menuPassword();
+                return true;
+
             case R.id.menu_support:
                 startActivity(getIntentSupport());
                 return true;
@@ -1189,6 +1217,49 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                     dialogDoze.show();
                 }
             }
+        }
+    }
+
+    private void menuPassword(){
+//        Intent intent = new Intent(this, LockCreationActivity.class);
+//        startActivityForResult(intent, REQUEST_CODE_CREATE_LOCK);
+
+        boolean isEnrolled = AppLock.isEnrolled(this);
+
+        if(isEnrolled){
+            IS_UPDATING_PASSWORD = true;
+            unlock();
+        } else {
+            createPassword();
+        }
+    }
+
+    private void createPassword(){
+        new LockCreationDialogBuilder(this)
+                .onCanceled(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("menuPas", "onCanceled...");
+                        IS_UPDATING_PASSWORD = false;
+                    }})
+                .onLockCreated(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("menuPas", "onLockCreated...");
+                    }
+                })
+                .show();
+    }
+
+    private void unlock(){
+
+        boolean isEnrolled = AppLock.isEnrolled(this);
+
+        if(isEnrolled){
+            Log.d("isEnrolled: ", "isEnrolled: " + isEnrolled);
+
+            Intent intent = new Intent(this, UnlockActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_ULOCK);
         }
     }
 
