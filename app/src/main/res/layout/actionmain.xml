@@ -22,6 +22,7 @@
         android:visibility="gone" />
 
     <androidx.appcompat.widget.SwitchCompat
+        android:visibility="gone"
         android:id="@+id/swEnabled"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -29,6 +30,15 @@
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:saveEnabled="false" />
+
+    <com.suke.widget.SwitchButton
+        android:layout_gravity="center"
+        android:id="@+id/swEnabled1"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:saveEnabled="false"/>
 
     <ImageView
         android:id="@+id/ivMetered"

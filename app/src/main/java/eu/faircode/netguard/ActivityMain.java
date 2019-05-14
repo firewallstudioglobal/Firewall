@@ -70,6 +70,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.suke.widget.SwitchButton;
+
 import java.util.List;
 
 public class ActivityMain extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -79,6 +81,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
     private ImageView ivIcon;
     private ImageView ivQueue;
     private SwitchCompat swEnabled;
+    private com.suke.widget.SwitchButton swEnabled1;
     private ImageView ivMetered;
     private SwipeRefreshLayout swipeRefresh;
     private AdapterRule adapter = null;
@@ -155,6 +158,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         ivIcon = actionView.findViewById(R.id.ivIcon);
         ivQueue = actionView.findViewById(R.id.ivQueue);
         swEnabled = actionView.findViewById(R.id.swEnabled);
+        swEnabled1 = actionView.findViewById(R.id.swEnabled1);
         ivMetered = actionView.findViewById(R.id.ivMetered);
 
         // Icon
@@ -259,6 +263,83 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                     ServiceSinkhole.stop("switch off", ActivityMain.this, false);
             }
         });
+
+        swEnabled1.setChecked(enabled);
+        swEnabled1.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SwitchButton view1, boolean isChecked) {
+                Log.i(TAG, "Switch=" + isChecked);
+                prefs.edit().putBoolean("enabled", isChecked).apply();
+
+                if (isChecked) {
+                    String alwaysOn = Settings.Secure.getString(getContentResolver(), "always_on_vpn_app");
+                    Log.i(TAG, "Always-on=" + alwaysOn);
+                    if (!TextUtils.isEmpty(alwaysOn))
+                        if (getPackageName().equals(alwaysOn)) {
+                            if (prefs.getBoolean("filter", false)) {
+                                int lockdown = Settings.Secure.getInt(getContentResolver(), "always_on_vpn_lockdown", 0);
+                                Log.i(TAG, "Lockdown=" + lockdown);
+                                if (lockdown != 0) {
+                                    swEnabled1.setChecked(false);
+                                    Toast.makeText(ActivityMain.this, R.string.msg_always_on_lockdown, Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                            }
+                        } else {
+                            swEnabled1.setChecked(false);
+                            Toast.makeText(ActivityMain.this, R.string.msg_always_on, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                    try {
+                        final Intent prepare = VpnService.prepare(ActivityMain.this);
+                        if (prepare == null) {
+                            Log.i(TAG, "Prepare done");
+                            onActivityResult(REQUEST_VPN, RESULT_OK, null);
+                        } else {
+                            // Show dialog
+                            LayoutInflater inflater = LayoutInflater.from(ActivityMain.this);
+                            View view = inflater.inflate(R.layout.vpn, null, false);
+                            dialogVpn = new AlertDialog.Builder(ActivityMain.this)
+                                    .setView(view)
+                                    .setCancelable(false)
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (running) {
+                                                Log.i(TAG, "Start intent=" + prepare);
+                                                try {
+                                                    // com.android.vpndialogs.ConfirmDialog required
+                                                    startActivityForResult(prepare, REQUEST_VPN);
+                                                } catch (Throwable ex) {
+                                                    Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
+                                                    onActivityResult(REQUEST_VPN, RESULT_CANCELED, null);
+                                                    prefs.edit().putBoolean("enabled", false).apply();
+                                                }
+                                            }
+                                        }
+                                    })
+                                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                        @Override
+                                        public void onDismiss(DialogInterface dialogInterface) {
+                                            dialogVpn = null;
+                                        }
+                                    })
+                                    .create();
+                            dialogVpn.show();
+                        }
+                    } catch (Throwable ex) {
+                        // Prepare failed
+                        Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
+                        prefs.edit().putBoolean("enabled", false).apply();
+                    }
+
+                } else
+                    ServiceSinkhole.stop("switch off", ActivityMain.this, false);
+            }
+        });
+
+
         if (enabled)
             checkDoze();
 
