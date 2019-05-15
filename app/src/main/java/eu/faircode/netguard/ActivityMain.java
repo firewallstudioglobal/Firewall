@@ -79,6 +79,8 @@ import com.guardanis.applock.dialogs.UnlockDialogBuilder;
 import com.suke.widget.SwitchButton;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityMain extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -549,7 +551,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         checkExtras(getIntent());
 
         unlock();
-
+        showInterstitialAd();
     }
 
     @Override
@@ -1156,6 +1158,23 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                 }
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    private void showInterstitialAd(){
+        Log.d("showInterstitialAd", "showInterstitialAd");
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ActivityMain.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AdRemoteController.showAdInterstitialFromFirebase(BuildConfig.APPLICATION_ID, ActivityMain.this);
+                    }
+                });
+            }
+        }, 5 * 1000);
     }
 
     private void updateSearch(String search) {

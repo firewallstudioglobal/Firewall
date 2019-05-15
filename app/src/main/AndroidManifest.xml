@@ -51,6 +51,10 @@
             android:name="android.max_aspect"
             android:value="2.1" />
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8112267774166015~2581117800"/>
+
         <activity
             android:name=".ActivityMain"
             android:configChanges="orientation|screenSize"

@@ -101,4 +101,10 @@ dependencies {
     implementation 'com.github.zcweng:switch-button:0.0.3@aar'
     implementation ('com.guardanis:applock:3.0.1')
 
+    implementation 'com.google.firebase:firebase-database:16.0.6'
+    implementation 'com.google.firebase:firebase-ads:17.2.0'
+    implementation 'com.facebook.android:audience-network-sdk:5.2.0-beta2'
+
 }
+
+apply plugin: 'com.google.gms.google-services'
