@@ -406,34 +406,34 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         });
 
         // Hint usage
-        final LinearLayout llUsage = findViewById(R.id.llUsage);
-        Button btnUsage = findViewById(R.id.btnUsage);
-        boolean hintUsage = prefs.getBoolean("hint_usage", true);
-        llUsage.setVisibility(hintUsage ? View.VISIBLE : View.GONE);
-        btnUsage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                prefs.edit().putBoolean("hint_usage", false).apply();
-                llUsage.setVisibility(View.GONE);
-                showHints();
-            }
-        });
+//        final LinearLayout llUsage = findViewById(R.id.llUsage);
+//        Button btnUsage = findViewById(R.id.btnUsage);
+//        boolean hintUsage = prefs.getBoolean("hint_usage", true);
+//        llUsage.setVisibility(hintUsage ? View.VISIBLE : View.GONE);
+//        btnUsage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                prefs.edit().putBoolean("hint_usage", false).apply();
+//                llUsage.setVisibility(View.GONE);
+//                showHints();
+//            }
+//        });
 
-        final LinearLayout llFairEmail = findViewById(R.id.llFairEmail);
-        TextView tvFairEmail = findViewById(R.id.tvFairEmail);
-        tvFairEmail.setMovementMethod(LinkMovementMethod.getInstance());
-        Button btnFairEmail = findViewById(R.id.btnFairEmail);
-        boolean hintFairEmail = prefs.getBoolean("hint_fairemail", true);
-        llFairEmail.setVisibility(hintFairEmail ? View.VISIBLE : View.GONE);
-        btnFairEmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                prefs.edit().putBoolean("hint_fairemail", false).apply();
-                llFairEmail.setVisibility(View.GONE);
-            }
-        });
+//        final LinearLayout llFairEmail = findViewById(R.id.llFairEmail);
+//        TextView tvFairEmail = findViewById(R.id.tvFairEmail);
+//        tvFairEmail.setMovementMethod(LinkMovementMethod.getInstance());
+//        Button btnFairEmail = findViewById(R.id.btnFairEmail);
+//        boolean hintFairEmail = prefs.getBoolean("hint_fairemail", true);
+//        llFairEmail.setVisibility(hintFairEmail ? View.VISIBLE : View.GONE);
+//        btnFairEmail.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                prefs.edit().putBoolean("hint_fairemail", false).apply();
+//                llFairEmail.setVisibility(View.GONE);
+//            }
+//        });
 
-        showHints();
+//        showHints();
 
         // Listen for preference changes
         prefs.registerOnSharedPreferenceChangeListener(this);
@@ -455,6 +455,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
 
         // First use
         if (!initialized) {
+
             // Create view
             LayoutInflater inflater = LayoutInflater.from(this);
             View view = inflater.inflate(R.layout.first, null, false);
@@ -492,7 +493,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                         }
                     })
                     .create();
-            dialogFirst.show();
+//            dialogFirst.show();
         }
 
         // Fill application list
