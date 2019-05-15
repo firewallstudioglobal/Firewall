@@ -919,9 +919,9 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
             searchView.setQuery(search, true);
         }
 
-        markPro(menu.findItem(R.id.menu_log), ActivityPro.SKU_LOG);
-        if (!IAB.isPurchasedAny(this))
-            markPro(menu.findItem(R.id.menu_pro), null);
+//        markPro(menu.findItem(R.id.menu_log), ActivityPro.SKU_LOG);
+//        if (!IAB.isPurchasedAny(this))
+//            markPro(menu.findItem(R.id.menu_pro), null);
 
         if (!Util.hasValidFingerprint(this) || getIntentInvite(this).resolveActivity(pm) == null)
             menu.removeItem(R.id.menu_invite);
@@ -934,15 +934,15 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         return true;
     }
 
-    private void markPro(MenuItem menu, String sku) {
-        if (sku == null || !IAB.isPurchased(sku, this)) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            boolean dark = prefs.getBoolean("dark_theme", false);
-            SpannableStringBuilder ssb = new SpannableStringBuilder("  " + menu.getTitle());
-            ssb.setSpan(new ImageSpan(this, dark ? R.drawable.ic_shopping_cart_white_24dp : R.drawable.ic_shopping_cart_black_24dp), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            menu.setTitle(ssb);
-        }
-    }
+//    private void markPro(MenuItem menu, String sku) {
+//        if (sku == null || !IAB.isPurchased(sku, this)) {
+//            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//            boolean dark = prefs.getBoolean("dark_theme", false);
+//            SpannableStringBuilder ssb = new SpannableStringBuilder("  " + menu.getTitle());
+//            ssb.setSpan(new ImageSpan(this, dark ? R.drawable.ic_shopping_cart_white_24dp : R.drawable.ic_shopping_cart_black_24dp), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//            menu.setTitle(ssb);
+//        }
+//    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {

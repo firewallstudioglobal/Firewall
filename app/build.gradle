@@ -54,7 +54,7 @@ android {
 //            proguardFiles.add(file('proguard-rules.pro'))
 //            signingConfig signingConfigs.release
 
-            buildConfigField "boolean", "PLAY_STORE_RELEASE", "true"
+            buildConfigField "boolean", "PLAY_STORE_RELEASE", "false"
             buildConfigField "String", "HOSTS_FILE_URI", "\"\""
             buildConfigField "String", "GITHUB_LATEST_API", "\"\""
 
