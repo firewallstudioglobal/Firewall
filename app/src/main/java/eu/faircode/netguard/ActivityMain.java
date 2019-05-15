@@ -1019,7 +1019,8 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
 //                    } else {
 //                        startActivity(new Intent(this, ActivityPro.class));
 //                    }
-                    startActivity(new Intent(this, ActivityPro.class));
+
+                    startActivity(new Intent(this, ActivityLog.class));
                 }
                 else {
                     Toast.makeText(this, R.string.msg_unavailable, Toast.LENGTH_SHORT).show();
