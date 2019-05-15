@@ -11,4 +11,3 @@
 /app/.externalNativeBuild
 /app/release
 /app/play
-keystore.properties
