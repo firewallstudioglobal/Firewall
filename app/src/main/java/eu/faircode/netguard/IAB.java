@@ -134,6 +134,10 @@ public class IAB implements ServiceConnection {
     }
 
     public boolean isPurchased(String sku) throws RemoteException {
+        if(true){
+            return true;
+        }
+
         return getPurchases().contains(sku);
     }
 
@@ -173,6 +177,11 @@ public class IAB implements ServiceConnection {
     }
 
     public static boolean isPurchased(String sku, Context context) {
+
+        if(true){
+            return true;
+        }
+
         try {
             if (Util.isDebuggable(context)) {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -192,6 +201,10 @@ public class IAB implements ServiceConnection {
     }
 
     public static boolean isPurchasedAny(Context context) {
+        if(true){
+            return true;
+        }
+
         try {
             if (Util.isDebuggable(context)) {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
